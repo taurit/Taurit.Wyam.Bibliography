@@ -54,6 +54,37 @@ that will be transformed into something like:
 
 [Harvard reference style](https://www.ntnu.edu/viko/harvard-examples) is used to render reference list (here's [another guide on this style](https://library.apiit.edu.my/pdf/harvard-reference-style/Quick_Harvard_Referencing_Guide%20_Revised_16May2016_(4).pdf)).
 
+## How do I hook up to Wyam?
+
+I add the following lines at the bottom of my `config.wyam` file using Blog recipe.
+
+```CS
+#assembly d:\Projekty\Wyam.Bibliography\Wyam.Bibliography\bin\Debug\Wyam.Bibliography.dll
+Pipelines[Blog.BlogPosts].Insert(1, Bibliography());
+```
+
+Perhaps this could be done better and avoiding using numeric index, but I don't know how yet.
+
+Additionaly, the following code added to `config.wyam` can be used to test how the pipeline looks after modification:
+
+```CS
+foreach (var pipeline in Pipelines[Blog.BlogPosts]) {
+	Console.WriteLine(pipeline.ToString());
+}
+
+// running wyam outputs:
+//
+// (...)
+// Evaluating configuration script
+//     Wyam.Core.Modules.Extensibility.ModuleCollection
+//     Wyam.Bibliography.Bibliography
+//     Wyam.Core.Modules.Control.Concat
+//     Wyam.Html.Excerpt
+//     Wyam.Core.Modules.Extensibility.ModuleCollection
+//     Wyam.Core.Modules.Metadata.Meta
+//     Wyam.Core.Modules.Control.OrderBy
+// (...)
+```
 
 ## Project status
 
