@@ -7,7 +7,7 @@ This project contains a custom module for Wyam that helps me build my blog. It's
 
 ### Defining references
 
-To define a bibliographic reference, author can use markup similar to:
+To define a bibliographic reference, author of content can use in Markdown files a markup similar to:
 
 ```html
 <reference

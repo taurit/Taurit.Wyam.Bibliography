@@ -1,5 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using JetBrains.Annotations;
 
 namespace Wyam.Bibliography.References
 {
@@ -8,15 +9,45 @@ namespace Wyam.Bibliography.References
     /// </summary>
     internal class ReferenceFinder
     {
-        internal ReferenceFinder(string contentBefore)
+        private static readonly Regex ReferenceTagRegex =
+            new Regex(@"\<reference\s.*?\/\>", RegexOptions.Singleline | RegexOptions.IgnoreCase);
+
+        private static readonly Regex ReferenceListTagRegex =
+            new Regex(@"\<reference-list\s.*?\/\>", RegexOptions.Singleline | RegexOptions.IgnoreCase);
+
+        internal ReferenceFinder([CanBeNull] string contentBefore)
         {
-            ContentBefore = contentBefore;
+            References = FindReferenceTags(contentBefore);
+            ReferenceList = FindReferenceListTag(contentBefore);
         }
 
-        internal string ContentBefore { get; }
+        internal List<ReferenceTag> References { get; }
 
-        internal List<ReferenceTag> References => throw new NotImplementedException();
+        internal ReferenceListTag ReferenceList { get; }
 
-        internal ReferenceListTag ReferenceList => throw new NotImplementedException();
+        [Pure]
+        private List<ReferenceTag> FindReferenceTags([CanBeNull] string htmlContent)
+        {
+            var foundTags = new List<ReferenceTag>();
+            if (htmlContent == null) return foundTags;
+
+            var match = ReferenceTagRegex.Match(htmlContent);
+            while (match.Success)
+            {
+                var tag = new ReferenceTag(match.Groups[0].Value);
+                foundTags.Add(tag);
+
+                match = match.NextMatch();
+            }
+            return foundTags;
+        }
+
+        [Pure]
+        private ReferenceListTag FindReferenceListTag([CanBeNull] string htmlContent)
+        {
+            if (htmlContent == null) return null;
+            var match = ReferenceListTagRegex.Match(htmlContent);
+            return match.Success ? new ReferenceListTag(match.Groups[0].Value) : null;
+        }
     }
 }

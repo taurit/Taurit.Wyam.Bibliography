@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="HarvardReferenceStyleTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReferenceFinderTests.cs" />
     <Compile Include="ReferenceTagTests.cs" />
   </ItemGroup>
   <ItemGroup>

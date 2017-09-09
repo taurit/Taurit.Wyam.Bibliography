@@ -201,5 +201,90 @@ namespace Wyam.Bibliography.Tests
             Assert.Equal(1800, tag2.Year);
             Assert.Equal(2100, tag3.Year);
         }
+
+        [Fact]
+        public void MultilineTag_IsRecognized()
+        {
+            // Arrange/Act
+            var tag = new ReferenceTag(@"<reference
+            id = 'power_of_habit'
+            title = 'The Power of Habit'
+            author = 'Charles Duhigg'
+            url = 'http://charlesduhigg.com/the-power-of-habit/'
+            date = '2012'
+            edition = '1'
+            place = 'Warszawa'
+            publisher = 'Dom Wydawniczy PWN'
+            pages = '123'
+            translator = 'Małgorzata Guzowska'
+            />");
+
+            // Assert
+            Assert.Equal(2012, tag.Year);
+        }
+
+        [Fact]
+        public void AllFieldsFromATag_AreRecognized()
+        {
+            // Arrange/Act
+            var tag = new ReferenceTag(@"<reference
+            id = 'power_of_habit'
+            title = 'The Power of Habit'
+            author = 'Charles Duhigg'
+            url = 'http://charlesduhigg.com/the-power-of-habit/'
+            date = '2012'
+            edition = '1'
+            place = 'Warszawa'
+            publisher = 'Dom Wydawniczy PWN'
+            pages = '123'
+            translator = 'Małgorzata Guzowska'
+            />");
+
+            // Assert
+            Assert.Equal("power_of_habit", tag.Id);
+            Assert.Equal("The Power of Habit", tag.Title);
+            Assert.Equal("Charles", tag.Author.FirstName);
+            Assert.Equal("Duhigg", tag.Author.LastName);
+            Assert.Equal("http://charlesduhigg.com/the-power-of-habit/", tag.Url);
+            Assert.Equal("1", tag.Edition);
+            Assert.Equal("Warszawa", tag.Place);
+            Assert.Equal("Dom Wydawniczy PWN", tag.Publisher);
+            Assert.Equal("123", tag.Pages);
+            Assert.Equal("Małgorzata Guzowska", tag.Translator);
+
+        }
+
+
+        [Fact]
+        public void AttributeNames_AraNotCaseSensitive()
+        {
+            // Arrange/Act
+            var tag1 = new ReferenceTag("<reference title='Animal Farm' />");
+            var tag2 = new ReferenceTag("<reference Title='Animal Farm' />");
+            var tag3 = new ReferenceTag("<reference TITLE='Animal Farm' />");
+            var tag4 = new ReferenceTag("<reference TiTlE='Animal Farm' />");
+
+            // Assert
+            Assert.Equal("Animal Farm", tag1.Title);
+            Assert.Equal("Animal Farm", tag2.Title);
+            Assert.Equal("Animal Farm", tag3.Title);
+            Assert.Equal("Animal Farm", tag4.Title);
+        }
+
+        [Fact]
+        public void TagName_IsNotCaseSensitive()
+        {
+            // Arrange/Act
+            var tag1 = new ReferenceTag("<reference title='Animal Farm' />");
+            var tag2 = new ReferenceTag("<Reference title='Animal Farm' />");
+            var tag3 = new ReferenceTag("<REFERENCE title='Animal Farm' />");
+            var tag4 = new ReferenceTag("<ReFeReNcE title='Animal Farm' />");
+
+            // Assert
+            Assert.Equal("Animal Farm", tag1.Title);
+            Assert.Equal("Animal Farm", tag2.Title);
+            Assert.Equal("Animal Farm", tag3.Title);
+            Assert.Equal("Animal Farm", tag4.Title);
+        }
     }
 }

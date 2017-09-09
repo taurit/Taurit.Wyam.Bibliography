@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Wyam.Bibliography.References;
 using Wyam.Bibliography.ReferenceStyles;
 using Wyam.Common.Documents;
@@ -37,29 +33,28 @@ namespace Wyam.Bibliography
 
         private string ProcessBibliographicReferences(string contentBefore)
         {
-            ReferenceFinder referenceFinder = new ReferenceFinder(contentBefore);
+            var referenceFinder = new ReferenceFinder(contentBefore);
 
             // find all reference tags in page content
-            List<ReferenceTag> allReferences = referenceFinder.References;
-            ReferenceListTag referenceList = referenceFinder.ReferenceList;
+            var allReferences = referenceFinder.References;
+            var referenceList = referenceFinder.ReferenceList;
 
             // sort references according to style rules
-            IReferenceStyle referenceStyle = ReferenceStyleFactory.Get(referenceList.ReferenceStyle);
+            var referenceStyle = ReferenceStyleFactory.Get(referenceList.ReferenceStyle);
             allReferences = referenceStyle.SortReferences(allReferences);
 
-            string contentAfter = contentBefore;
-            foreach (ReferenceTag reference in allReferences)
+            var contentAfter = contentBefore;
+            foreach (var reference in allReferences)
             {
                 // replace in-text references with a hyperlink and number
-                string renderedReference = referenceStyle.RenderReference(reference);
+                var renderedReference = referenceStyle.RenderReference(reference);
                 contentAfter = contentAfter.Replace(reference.RawHtml, renderedReference);
             }
 
-            string renderedReferenceList = referenceStyle.RenderReferenceList(referenceList);
+            var renderedReferenceList = referenceStyle.RenderReferenceList(referenceList);
             contentAfter = contentAfter.Replace(referenceList.RawHtml, renderedReferenceList);
 
             return contentAfter;
         }
     }
-    
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using HtmlAgilityPack;
+using JetBrains.Annotations;
 
 namespace Wyam.Bibliography.References
 {
@@ -32,10 +33,9 @@ namespace Wyam.Bibliography.References
         {
             get
             {
-                var date = ReferenceNode.Attributes["date"]?.Value;
-                if (string.IsNullOrWhiteSpace(date)) return null;
+                var date = TrimAttributeValue(ReferenceNode.Attributes["date"]?.Value);
+                if (date == null) return null;
 
-                date = date.Trim();
                 var dateMatch = DateMatcher.Match(date);
                 if (dateMatch.Success)
                 {
@@ -46,25 +46,19 @@ namespace Wyam.Bibliography.References
             }
         }
 
-        public string Pages
-        {
-            get
-            {
-                var pages = ReferenceNode.Attributes["pages"]?.Value;
-                if (string.IsNullOrWhiteSpace(pages)) return null;
-                return pages.Trim();
-            }
-        }
+        public string Pages => TrimAttributeValue(ReferenceNode.Attributes["pages"]?.Value);
+        public string Title => TrimAttributeValue(ReferenceNode.Attributes["title"]?.Value);
+        public string Id => TrimAttributeValue(ReferenceNode.Attributes["id"]?.Value);
+        public string Url => TrimAttributeValue(ReferenceNode.Attributes["url"]?.Value);
+        public string Edition=> TrimAttributeValue(ReferenceNode.Attributes["edition"]?.Value);
+        public string Place => TrimAttributeValue(ReferenceNode.Attributes["place"]?.Value);
+        public string Publisher => TrimAttributeValue(ReferenceNode.Attributes["publisher"]?.Value);
+        public string Translator => TrimAttributeValue(ReferenceNode.Attributes["translator"]?.Value);
 
-        public string Title
+        private string TrimAttributeValue([CanBeNull]string value)
         {
-            get
-            {
-                var title = ReferenceNode.Attributes["title"]?.Value;
-                if (string.IsNullOrWhiteSpace(title)) return null;
-                return title.Trim();
-            }
+            if (String.IsNullOrWhiteSpace(value)) return null;
+            return value.Trim();
         }
-
     }
 }
