@@ -40,7 +40,7 @@ namespace Wyam.Bibliography
             var referenceList = referenceFinder.ReferenceList;
 
             // sort references according to style rules
-            var referenceStyle = ReferenceStyleFactory.Get(referenceList.ReferenceStyle);
+            var referenceStyle = ReferenceStyleFactory.Get("Harvard"); // currently the only one implemented
             allReferences = referenceStyle.SortReferences(allReferences);
 
             var contentAfter = contentBefore;
