@@ -21,9 +21,13 @@ namespace Wyam.Bibliography.References
             ReferenceList = FindReferenceListTag(contentBefore);
         }
 
+        [NotNull]
         internal List<ReferenceTag> References { get; }
 
+        [CanBeNull]
         internal ReferenceListTag ReferenceList { get; }
+
+        public bool ContentContainsAnyReferences => this.References.Count > 0;
 
         [Pure]
         private List<ReferenceTag> FindReferenceTags([CanBeNull] string htmlContent)

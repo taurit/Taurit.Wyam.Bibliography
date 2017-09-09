@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Wyam.Bibliography.References;
 using Wyam.Bibliography.ReferenceStyles;
@@ -33,25 +34,31 @@ namespace Wyam.Bibliography
 
         private string ProcessBibliographicReferences(string contentBefore)
         {
+            // does content require processing references?
             var referenceFinder = new ReferenceFinder(contentBefore);
-            
+            var referenceList = referenceFinder.ReferenceList;
+            if (!referenceFinder.ContentContainsAnyReferences || referenceList == null)
+                return contentBefore;
+
             // sort references according to style rules
             var referenceStyle = ReferenceStyleFactory.Get("Harvard"); // currently the only one implemented
             var sortedReferences = referenceStyle.SortReferences(referenceFinder.References);
 
+            // replace in-text references with a hyperlink and in-text description
             var contentAfter = contentBefore;
             foreach (var reference in sortedReferences)
             {
-                // replace in-text references with a hyperlink and number
+                
                 var renderedReference = referenceStyle.RenderReference(reference);
                 contentAfter = contentAfter.Replace(reference.RawHtml, renderedReference);
             }
 
-            var referenceList = referenceFinder.ReferenceList;
+            // generate reference list
             var renderedReferenceList = referenceStyle.RenderReferenceList(referenceList, sortedReferences);
             contentAfter = contentAfter.Replace(referenceList.RawHtml, renderedReferenceList);
 
             return contentAfter;
+
         }
     }
 }
