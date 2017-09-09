@@ -34,24 +34,21 @@ namespace Wyam.Bibliography
         private string ProcessBibliographicReferences(string contentBefore)
         {
             var referenceFinder = new ReferenceFinder(contentBefore);
-
-            // find all reference tags in page content
-            var allReferences = referenceFinder.References;
-            var referenceList = referenceFinder.ReferenceList;
-
+            
             // sort references according to style rules
             var referenceStyle = ReferenceStyleFactory.Get("Harvard"); // currently the only one implemented
-            allReferences = referenceStyle.SortReferences(allReferences);
+            var sortedReferences = referenceStyle.SortReferences(referenceFinder.References);
 
             var contentAfter = contentBefore;
-            foreach (var reference in allReferences)
+            foreach (var reference in sortedReferences)
             {
                 // replace in-text references with a hyperlink and number
                 var renderedReference = referenceStyle.RenderReference(reference);
                 contentAfter = contentAfter.Replace(reference.RawHtml, renderedReference);
             }
 
-            var renderedReferenceList = referenceStyle.RenderReferenceList(referenceList);
+            var referenceList = referenceFinder.ReferenceList;
+            var renderedReferenceList = referenceStyle.RenderReferenceList(referenceList, sortedReferences);
             contentAfter = contentAfter.Replace(referenceList.RawHtml, renderedReferenceList);
 
             return contentAfter;

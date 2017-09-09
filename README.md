@@ -27,7 +27,7 @@ To define a bibliographic reference, author of content can use in Markdown files
 which will be transformed into a HTML code containing a link to the element in a reference list:
 
 ```html
-<a href="#reference-list-1" />(Duhigg, 2012, p.123)</a>
+<a href="#reference-list-1" class="resource-reference" />(Duhigg, 2012, p.123)</a>
 ```
 
 ### Listing references

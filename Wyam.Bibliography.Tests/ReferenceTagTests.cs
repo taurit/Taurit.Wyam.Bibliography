@@ -246,7 +246,7 @@ namespace Wyam.Bibliography.Tests
             Assert.Equal("Charles", tag.Author.FirstName);
             Assert.Equal("Duhigg", tag.Author.LastName);
             Assert.Equal("http://charlesduhigg.com/the-power-of-habit/", tag.Url);
-            Assert.Equal("1", tag.Edition);
+            Assert.Equal(1, tag.Edition);
             Assert.Equal("Warszawa", tag.Place);
             Assert.Equal("Dom Wydawniczy PWN", tag.Publisher);
             Assert.Equal("123", tag.Pages);

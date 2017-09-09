@@ -5,8 +5,8 @@ namespace Wyam.Bibliography.ReferenceStyles
 {
     internal interface IReferenceStyle
     {
-        List<ReferenceTag> SortReferences(IReadOnlyList<ReferenceTag> allReferences);
-        string RenderReference(ReferenceTag referenceParsedReference);
-        string RenderReferenceList(ReferenceListTag referenceList);
+        IReadOnlyList<ReferenceTag> SortReferences(IReadOnlyList<ReferenceTag> allReferences);
+        string RenderReference(ReferenceTag reference);
+        string RenderReferenceList(ReferenceListTag referenceList, IReadOnlyList<ReferenceTag> sortedReferences);
     }
 }

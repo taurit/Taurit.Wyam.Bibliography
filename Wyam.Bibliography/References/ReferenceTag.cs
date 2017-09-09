@@ -12,7 +12,7 @@ namespace Wyam.Bibliography.References
     internal class ReferenceTag
     {
         private static readonly Regex DateMatcher = new Regex(@"(?<year>\d{4})(-\d{2}-\d{2})?");
-    
+
         public ReferenceTag(string htmlMarkup)
         {
             RawHtml = htmlMarkup;
@@ -22,13 +22,14 @@ namespace Wyam.Bibliography.References
 
             PersonNameParser personNameParser = new PersonNameParser();
             Author = personNameParser.ParseName(ReferenceNode.Attributes["author"]?.Value);
-            
+
         }
 
         public string RawHtml { get; }
         private HtmlNode ReferenceNode { get; }
 
         public PersonName Author { get; }
+
         public int? Year
         {
             get
@@ -50,7 +51,22 @@ namespace Wyam.Bibliography.References
         public string Title => TrimAttributeValue(ReferenceNode.Attributes["title"]?.Value);
         public string Id => TrimAttributeValue(ReferenceNode.Attributes["id"]?.Value);
         public string Url => TrimAttributeValue(ReferenceNode.Attributes["url"]?.Value);
-        public string Edition=> TrimAttributeValue(ReferenceNode.Attributes["edition"]?.Value);
+
+        public int? Edition
+        {
+            get
+            {
+
+                var attributeValue = TrimAttributeValue(ReferenceNode.Attributes["edition"]?.Value);
+                int edition;
+                if (Int32.TryParse(attributeValue, out edition) && edition > 0)
+                {
+                    return edition;
+                }
+                return null;
+            }
+        }
+
         public string Place => TrimAttributeValue(ReferenceNode.Attributes["place"]?.Value);
         public string Publisher => TrimAttributeValue(ReferenceNode.Attributes["publisher"]?.Value);
         public string Translator => TrimAttributeValue(ReferenceNode.Attributes["translator"]?.Value);
