@@ -19,6 +19,7 @@ To define a bibliographic reference, author can use markup similar to:
     edition="1"
     place="Warszawa"
     publisher="Dom Wydawniczy PWN"
+    pages="123"
     translator="Małgorzata Guzowska"
 /> 
 ```
@@ -26,7 +27,7 @@ To define a bibliographic reference, author can use markup similar to:
 which will be transformed into a HTML code containing a link to the element in a reference list:
 
 ```html
-<a href="#reference-list-1" />[1]</a>
+<a href="#reference-list-1" />(Duhigg, 2012, p.123)</a>
 ```
 
 ### Listing references
@@ -34,7 +35,7 @@ which will be transformed into a HTML code containing a link to the element in a
 List of all references can be displayed with a code:
 
 ```html
-<bibliography
+<reference-list
     id="reference-list"
     header-wrapper="h2"
     header="Reference List"
@@ -52,7 +53,7 @@ that will be transformed into something like:
 </ol>
 ```
 
-[Harvard reference style](https://www.ntnu.edu/viko/harvard-examples) is used to render reference list (here's [another guide on this style](https://library.apiit.edu.my/pdf/harvard-reference-style/Quick_Harvard_Referencing_Guide%20_Revised_16May2016_(4).pdf)).
+[Harvard reference style](https://www.ntnu.edu/viko/harvard-examples) is used to render reference list.
 
 ## How do I hook up to Wyam?
 
