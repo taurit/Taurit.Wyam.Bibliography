@@ -1,4 +1,5 @@
-﻿using Wyam.Bibliography.References;
+﻿using System;
+using Wyam.Bibliography.References;
 using Xunit;
 
 namespace Wyam.Bibliography.Tests
@@ -285,6 +286,44 @@ namespace Wyam.Bibliography.Tests
             Assert.Equal("Animal Farm", tag2.Title);
             Assert.Equal("Animal Farm", tag3.Title);
             Assert.Equal("Animal Farm", tag4.Title);
+        }
+
+        [Fact]
+        public void WhenOnlyYearIsProvided_DateIsNull()
+        {
+            // Arrange/Act
+            var tag1 = new ReferenceTag("<reference date='2017' />");
+
+            // Assert
+            Assert.True(tag1.Year.HasValue);
+            Assert.Equal(2017, tag1.Year.Value);
+            Assert.False(tag1.Date.HasValue);
+        }
+
+        [Fact]
+        public void WhenDateIsProvided_BothDateAndYearHaveValues()
+        {
+            // Arrange/Act
+            var tag1 = new ReferenceTag("<reference date='2017-03-05' />");
+
+            // Assert
+            Assert.True(tag1.Year.HasValue);
+            Assert.True(tag1.Date.HasValue);
+            Assert.Equal(2017, tag1.Year);
+            Assert.Equal(new DateTime(2017, 03, 05), tag1.Date);
+
+        }
+
+
+        [Fact]
+        public void WhenInvalidDateIsProvided_DateIsNull()
+        {
+            // Arrange/Act
+            var tag1 = new ReferenceTag("<reference date='2017-13-05' />");
+
+            // Assert
+            Assert.False(tag1.Date.HasValue);
+
         }
     }
 }

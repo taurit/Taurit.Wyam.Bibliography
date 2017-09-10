@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Globalization;
 using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 using JetBrains.Annotations;
@@ -11,7 +11,8 @@ namespace Wyam.Bibliography.References
     /// </summary>
     internal class ReferenceTag
     {
-        private static readonly Regex DateMatcher = new Regex(@"(?<isoDate>(?<year>\d{4})(-\d{2}-\d{2})?)");
+        private static readonly Regex YearMatcher = new Regex(@"(?<year>\d{4})(-\d{2}-\d{2})?");
+        private static readonly Regex DateMatcher = new Regex(@"(?<isoDate>\d{4}-\d{2}-\d{2})");
 
         public ReferenceTag(string htmlMarkup)
         {
@@ -20,9 +21,8 @@ namespace Wyam.Bibliography.References
             doc.LoadHtml(htmlMarkup);
             ReferenceNode = doc.DocumentNode.ChildNodes[0];
 
-            PersonNameParser personNameParser = new PersonNameParser();
+            var personNameParser = new PersonNameParser();
             Author = personNameParser.ParseName(ReferenceNode.Attributes["author"]?.Value);
-
         }
 
         public string RawHtml { get; }
@@ -40,8 +40,18 @@ namespace Wyam.Bibliography.References
                 var dateMatch = DateMatcher.Match(date);
                 if (dateMatch.Success)
                 {
-                    var fullDate = Convert.ToDateTime(dateMatch.Groups["isoDate"].Value);
-                    return fullDate;
+                    try
+                    {
+                        DateTime datetime = DateTime.ParseExact(dateMatch.Groups["isoDate"].Value, "yyyy-MM-dd",
+                            CultureInfo.InvariantCulture);
+                        return datetime;
+                    }
+                    catch (FormatException)
+                    {
+                        // eg date "2000-13-01": regex matches, but month is invalid.
+                        return null;
+                    }
+                    
                 }
                 return null;
             }
@@ -54,7 +64,7 @@ namespace Wyam.Bibliography.References
                 var date = TrimAttributeValue(ReferenceNode.Attributes["date"]?.Value);
                 if (date == null) return null;
 
-                var dateMatch = DateMatcher.Match(date);
+                var dateMatch = YearMatcher.Match(date);
                 if (dateMatch.Success)
                 {
                     var year = Convert.ToInt32(dateMatch.Groups["year"].Value);
@@ -73,13 +83,10 @@ namespace Wyam.Bibliography.References
         {
             get
             {
-
                 var attributeValue = TrimAttributeValue(ReferenceNode.Attributes["edition"]?.Value);
                 int edition;
-                if (Int32.TryParse(attributeValue, out edition) && edition > 0)
-                {
+                if (int.TryParse(attributeValue, out edition) && edition > 0)
                     return edition;
-                }
                 return null;
             }
         }
@@ -88,9 +95,9 @@ namespace Wyam.Bibliography.References
         public string Publisher => TrimAttributeValue(ReferenceNode.Attributes["publisher"]?.Value);
         public string Translator => TrimAttributeValue(ReferenceNode.Attributes["translator"]?.Value);
 
-        private string TrimAttributeValue([CanBeNull]string value)
+        private string TrimAttributeValue([CanBeNull] string value)
         {
-            if (String.IsNullOrWhiteSpace(value)) return null;
+            if (string.IsNullOrWhiteSpace(value)) return null;
             return value.Trim();
         }
     }
