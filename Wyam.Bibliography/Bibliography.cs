@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.IO;
+using System.Linq;
 using Wyam.Bibliography.References;
 using Wyam.Bibliography.ReferenceStyles;
 using Wyam.Common.Documents;
@@ -32,13 +34,23 @@ namespace Wyam.Bibliography
             return documents;
         }
 
-        private string ProcessBibliographicReferences(string contentBefore)
+        internal string ProcessBibliographicReferences(string contentBefore)
         {
             // does content require processing references?
             var referenceFinder = new ReferenceFinder(contentBefore);
             var referenceList = referenceFinder.ReferenceList;
-            if (!referenceFinder.ContentContainsAnyReferences || referenceList == null)
+            
+            // edge cases
+            // no references:
+            if (referenceFinder.ContentContainsAnyReferences == false && referenceList == null)
                 return contentBefore;
+            // no reference list
+            if (referenceFinder.ContentContainsAnyReferences && referenceList == null)
+                return RemoveAllSubstrings(contentBefore, referenceFinder.References.Select(x => x.RawHtml));
+            // no references
+            Contract.Assert(referenceList != null);
+            if (referenceFinder.ContentContainsAnyReferences == false)
+                return contentBefore.Replace(referenceList.RawHtml, String.Empty);
 
             // sort references according to style rules
             var referenceStyle = ReferenceStyleFactory.Get("Harvard"); // currently the only one implemented
@@ -48,7 +60,6 @@ namespace Wyam.Bibliography
             var contentAfter = contentBefore;
             foreach (var reference in sortedReferences)
             {
-                
                 var renderedReference = referenceStyle.RenderReference(reference);
                 contentAfter = contentAfter.Replace(reference.RawHtml, renderedReference);
             }
@@ -58,7 +69,15 @@ namespace Wyam.Bibliography
             contentAfter = contentAfter.Replace(referenceList.RawHtml, renderedReferenceList);
 
             return contentAfter;
+        }
 
+        private string RemoveAllSubstrings(string content, IEnumerable<string> substrings)
+        {
+            foreach (var substring in substrings)
+            {
+                content = content.Replace(substring, string.Empty);
+            }
+            return content;
         }
     }
 }

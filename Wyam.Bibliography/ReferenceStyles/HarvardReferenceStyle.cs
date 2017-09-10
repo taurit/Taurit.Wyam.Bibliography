@@ -63,7 +63,7 @@ namespace Wyam.Bibliography.ReferenceStyles
             // "(...) Use “Reference list” or “Literature list” as the heading." https://innsida.ntnu.no/wiki/-/wiki/English/Using+the+Harvard+reference+style
             string headerText = referenceList.HeaderText ?? "Reference List";
 
-            referenceListMarkup.AppendLine($@"<{headerWrapperTag} id='reference-list'>{headerText}</{headerWrapperTag}>");
+            referenceListMarkup.AppendLine($@"<{headerWrapperTag} id='reference-list' class='reference-list'>{headerText}</{headerWrapperTag}>");
             referenceListMarkup.AppendLine($@"<ol>");
             foreach (var reference in sortedReferences)
             {
