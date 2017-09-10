@@ -55,40 +55,21 @@ that will be transformed into something like:
 
 [Harvard reference style](https://www.ntnu.edu/viko/harvard-examples) is used to render reference list.
 
-## How do I hook up to Wyam?
+## How do I integrate with Wyam?
 
 I add the following lines at the bottom of my `config.wyam` file using Blog recipe.
 
 ```CS
 #assembly d:\Projekty\Wyam.Bibliography\Wyam.Bibliography\bin\Debug\Wyam.Bibliography.dll
-Pipelines[Blog.BlogPosts].Insert(1, Bibliography());
-```
-
-Perhaps this could be done better and avoiding using numeric index, but I don't know how yet.
-
-Additionaly, the following code added to `config.wyam` can be used to test how the pipeline looks after modification:
-
-```CS
-foreach (var pipeline in Pipelines[Blog.BlogPosts]) {
-	Console.WriteLine(pipeline.ToString());
-}
-
-// running wyam outputs:
-//
-// (...)
-// Evaluating configuration script
-//     Wyam.Core.Modules.Extensibility.ModuleCollection
-//     Wyam.Bibliography.Bibliography
-//     Wyam.Core.Modules.Control.Concat
-//     Wyam.Html.Excerpt
-//     Wyam.Core.Modules.Extensibility.ModuleCollection
-//     Wyam.Core.Modules.Metadata.Meta
-//     Wyam.Core.Modules.Control.OrderBy
-// (...)
+Pipelines[Blog.RenderBlogPosts].InsertBefore("WriteFiles", Bibliography());
 ```
 
 ## Project status
 
-I created this project for my own needs.
+I created this project for my own needs. 
 
-However, if you need such tool, feel free to fork it. You can also [create issues](https://github.com/taurit/Wyam.Bibliography/issues) for bugs or change requests.
+Generating bibliography is a problem that is easy to solve for limited number of scenarios. Making this solution support dozens of other work types that can be cited requires more time.
+
+Currently I have no need to implement all those scenarios, as I only need two: citing books and websites.
+
+However, you can [create issues](https://github.com/taurit/Wyam.Bibliography/issues) for bugs or change requests if you would like to see something implemented that would be useful for you :)

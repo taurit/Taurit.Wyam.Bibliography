@@ -11,7 +11,7 @@ namespace Wyam.Bibliography.References
     /// </summary>
     internal class ReferenceTag
     {
-        private static readonly Regex DateMatcher = new Regex(@"(?<year>\d{4})(-\d{2}-\d{2})?");
+        private static readonly Regex DateMatcher = new Regex(@"(?<isoDate>(?<year>\d{4})(-\d{2}-\d{2})?)");
 
         public ReferenceTag(string htmlMarkup)
         {
@@ -29,6 +29,23 @@ namespace Wyam.Bibliography.References
         private HtmlNode ReferenceNode { get; }
 
         public PersonName Author { get; }
+
+        public DateTime? Date
+        {
+            get
+            {
+                var date = TrimAttributeValue(ReferenceNode.Attributes["date"]?.Value);
+                if (date == null) return null;
+
+                var dateMatch = DateMatcher.Match(date);
+                if (dateMatch.Success)
+                {
+                    var fullDate = Convert.ToDateTime(dateMatch.Groups["isoDate"].Value);
+                    return fullDate;
+                }
+                return null;
+            }
+        }
 
         public int? Year
         {

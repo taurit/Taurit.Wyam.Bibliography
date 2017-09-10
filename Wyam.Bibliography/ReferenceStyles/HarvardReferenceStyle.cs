@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
+using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Humanizer;
 using JetBrains.Annotations;
 using Wyam.Bibliography.References;
@@ -10,6 +13,13 @@ namespace Wyam.Bibliography.ReferenceStyles
 {
     internal class HarvardReferenceStyle : IReferenceStyle
     {
+        public HarvardReferenceStyle()
+        {
+            // Allows properly "humanize" strings like 2 -> "2nd" on non-english OS versions:
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+            Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-US");
+        }
+
         /// <summary>
         ///     Orders references by author's last name.
         ///     "Citations are listed in alphabetical order by the author’s last name."
@@ -17,15 +27,13 @@ namespace Wyam.Bibliography.ReferenceStyles
         /// </summary>
         /// <param name="allReferences"></param>
         /// <returns></returns>
-        public IReadOnlyList<ReferenceTag> SortReferences([NotNull]IReadOnlyList<ReferenceTag> allReferences)
+        public IReadOnlyList<ReferenceTag> SortReferences([NotNull] IReadOnlyList<ReferenceTag> allReferences)
         {
             var invalidReferences = allReferences.Where(x => x.Author == null).ToList();
             if (invalidReferences.Any())
-            {
                 throw new ArgumentException(
                     $"Author is required for reference when rendering in Harvard style. Found {invalidReferences.Count} invalid references, eg. {invalidReferences.First().RawHtml}");
-            }
-                
+
 
             return allReferences.OrderBy(x => x.Author.LastName).ToList();
         }
@@ -37,37 +45,44 @@ namespace Wyam.Bibliography.ReferenceStyles
         /// <returns></returns>
         public string RenderReference(ReferenceTag reference)
         {
-            string inTextReference = "[*]"; // fallback value
+            var inTextReference = "[*]"; // fallback value
             if (reference.Author?.LastName != null)
-            {
                 if (reference.Year != null)
-                {
-                    inTextReference = reference.Pages != null
-                        ? $"({reference.Author.LastName} {reference.Year.Value}, p. {reference.Pages})"
-                        : $"({reference.Author.LastName} {reference.Year.Value})";
-                }
+                    if (reference.Pages == null)
+                    {
+                        inTextReference = $"({reference.Author.LastName} {reference.Year.Value})";
+                    }
+                    else
+                    {
+                        // "The correct forms are p. for a single page, and pp. for a range." https://english.stackexchange.com/a/14539
+                        var pagesAbbreviation = reference.Pages.Contains("-") ? "p." : "pp.";
+
+                        inTextReference =
+                            $"({reference.Author.LastName} {reference.Year.Value}, {pagesAbbreviation} {reference.Pages})";
+                    }
                 else
                     inTextReference = $"({reference.Author.LastName})";
-            }
 
-            string link = $"<a href='#{reference.Id}' class='resource-reference'>{inTextReference}</a>";
+            var link = $"<a href='#{reference.Id}' class='resource-reference'>{inTextReference}</a>";
             return link;
         }
 
-        public string RenderReferenceList([NotNull]ReferenceListTag referenceList, [NotNull]IReadOnlyList<ReferenceTag> sortedReferences)
+        public string RenderReferenceList([NotNull] ReferenceListTag referenceList,
+            [NotNull] IReadOnlyList<ReferenceTag> sortedReferences)
         {
-            StringBuilder referenceListMarkup = new StringBuilder();
+            var referenceListMarkup = new StringBuilder();
 
             // typically h1 is article's title in a well-structured document, so h2 was chosen as default
-            string headerWrapperTag = referenceList.HeaderWrapper ?? "h2";
+            var headerWrapperTag = referenceList.HeaderWrapper ?? "h2";
             // "(...) Use “Reference list” or “Literature list” as the heading." https://innsida.ntnu.no/wiki/-/wiki/English/Using+the+Harvard+reference+style
-            string headerText = referenceList.HeaderText ?? "Reference List";
+            var headerText = referenceList.HeaderText ?? "Reference List";
 
-            referenceListMarkup.AppendLine($@"<{headerWrapperTag} id='reference-list' class='reference-list'>{headerText}</{headerWrapperTag}>");
+            referenceListMarkup.AppendLine(
+                $@"<{headerWrapperTag} id='reference-list' class='reference-list'>{headerText}</{headerWrapperTag}>");
             referenceListMarkup.AppendLine($@"<ol>");
             foreach (var reference in sortedReferences)
             {
-                string renderedReference = RenderReferenceListItem(reference);
+                var renderedReference = RenderReferenceListItem(reference);
                 referenceListMarkup.AppendLine(renderedReference);
             }
             referenceListMarkup.AppendLine($@"</ol>");
@@ -76,20 +91,53 @@ namespace Wyam.Bibliography.ReferenceStyles
             return renderedReferenceList;
         }
 
-        [Pure]
-        private string RenderReferenceListItem(ReferenceTag reference)
+        [JetBrains.Annotations.Pure]
+        internal string RenderReferenceListItem(ReferenceTag reference)
         {
-            string edition = RenderEdition(reference.Edition);
-            string publisher = RenderPublisher(reference.Publisher, reference.Place);
-
-            return $@"<li id='{reference.Id}'>
-                        {reference.Author.LastName}, {reference.Author.Initials[0]}. ({reference.Year}) <i>{reference.Title}</i>.{edition}{publisher}
-                    </li>";
+            var content = RenderReferenceListItemContent(reference);
+            return $@"<li id='{reference.Id}'>{content}</li>";
         }
+
+        [JetBrains.Annotations.Pure]
+        internal string RenderReferenceListItemContent(ReferenceTag reference)
+        {
+            if (reference.Url != null && reference.Date.HasValue && reference.Publisher == null
+            ) // heuristics: seems like online content
+                return RenderAsWebsite(reference);
+
+            return RenderAsBook(reference); // default
+        }
+
+        [JetBrains.Annotations.Pure]
+        private string RenderAsWebsite(ReferenceTag reference)
+        {
+            Contract.Assert(reference.Date.HasValue);
+            Contract.Assert(reference.Url != null);
+
+            var dateTime = reference.Date.Value;
+            var monthAbbreviation = DateTimeFormatInfo.InvariantInfo.GetAbbreviatedMonthName(dateTime.Month);
+            var referenceDateHumanized = $"{dateTime.Day} {monthAbbreviation}. {dateTime.Year}";
+
+            return $@"{reference.Author.UnprocessedAuthorString}, ({reference.Year}). <i>{
+                    reference.Title
+                }</i>. [online] Available at: {reference.Url} [Accessed {referenceDateHumanized}].";
+        }
+
+        [JetBrains.Annotations.Pure]
+        private string RenderAsBook(ReferenceTag reference)
+        {
+            var edition = RenderEdition(reference.Edition);
+            var publisher = RenderPublisher(reference.Publisher, reference.Place);
+
+            return $@"{reference.Author.LastName}, {reference.Author.Initials[0]}. ({reference.Year}). <i>{
+                    reference.Title
+                }</i>.{edition}{publisher}";
+        }
+
 
         private string RenderPublisher(string referencePublisher, string referencePlace)
         {
-            if (String.IsNullOrEmpty(referencePublisher) || string.IsNullOrEmpty(referencePlace))
+            if (string.IsNullOrEmpty(referencePublisher) || string.IsNullOrEmpty(referencePlace))
                 return string.Empty;
 
             return $" {referencePlace}: {referencePublisher}.";
@@ -97,10 +145,9 @@ namespace Wyam.Bibliography.ReferenceStyles
 
         private string RenderEdition(int? edition)
         {
-            if (edition == null) return String.Empty;
-            string editionHumanized = edition.Value.Ordinalize(); // 1st, 2nd, 3rd etc...
-            return $"{editionHumanized} edn.";
-
+            if (edition == null) return string.Empty;
+            var editionHumanized = edition.Value.Ordinalize(); // 1st, 2nd, 3rd etc...
+            return $" {editionHumanized} ed.";
         }
     }
 }

@@ -31,7 +31,7 @@ namespace Wyam.Bibliography.References
                 initials.Add(initial[0]);
             }
                 
-            return new PersonName(firstName, lastName, initials);
+            return new PersonName(author, firstName, lastName, initials);
         }
     }
 }

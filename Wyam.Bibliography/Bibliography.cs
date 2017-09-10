@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
@@ -39,7 +38,7 @@ namespace Wyam.Bibliography
             // does content require processing references?
             var referenceFinder = new ReferenceFinder(contentBefore);
             var referenceList = referenceFinder.ReferenceList;
-            
+
             // edge cases
             // no references:
             if (referenceFinder.ContentContainsAnyReferences == false && referenceList == null)
@@ -50,7 +49,7 @@ namespace Wyam.Bibliography
             // no references
             Contract.Assert(referenceList != null);
             if (referenceFinder.ContentContainsAnyReferences == false)
-                return contentBefore.Replace(referenceList.RawHtml, String.Empty);
+                return contentBefore.Replace(referenceList.RawHtml, string.Empty);
 
             // sort references according to style rules
             var referenceStyle = ReferenceStyleFactory.Get("Harvard"); // currently the only one implemented
@@ -74,9 +73,7 @@ namespace Wyam.Bibliography
         private string RemoveAllSubstrings(string content, IEnumerable<string> substrings)
         {
             foreach (var substring in substrings)
-            {
                 content = content.Replace(substring, string.Empty);
-            }
             return content;
         }
     }
