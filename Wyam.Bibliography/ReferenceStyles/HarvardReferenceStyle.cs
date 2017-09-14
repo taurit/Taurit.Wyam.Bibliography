@@ -13,11 +13,10 @@ namespace Wyam.Bibliography.ReferenceStyles
 {
     internal class HarvardReferenceStyle : IReferenceStyle
     {
+        
         public HarvardReferenceStyle()
         {
-            // Allows properly "humanize" strings like 2 -> "2nd" on non-english OS versions:
-            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-            Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-US");
+          
         }
 
         /// <summary>
@@ -149,5 +148,6 @@ namespace Wyam.Bibliography.ReferenceStyles
             var editionHumanized = edition.Value.Ordinalize(); // 1st, 2nd, 3rd etc...
             return $" {editionHumanized} ed.";
         }
+
     }
 }

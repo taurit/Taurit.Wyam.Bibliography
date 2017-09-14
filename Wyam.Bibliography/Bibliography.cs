@@ -2,6 +2,7 @@
 using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
+using Wyam.Bibliography.Localization;
 using Wyam.Bibliography.References;
 using Wyam.Bibliography.ReferenceStyles;
 using Wyam.Common.Documents;
@@ -52,21 +53,42 @@ namespace Wyam.Bibliography
                 return contentBefore.Replace(referenceList.RawHtml, string.Empty);
 
             // sort references according to style rules
-            var referenceStyle = ReferenceStyleFactory.Get("Harvard"); // currently the only one implemented
-            var sortedReferences = referenceStyle.SortReferences(referenceFinder.References);
+            // Allows properly "humanize" strings like 2 -> "2nd" on non-english OS versions:
+            using (new SpecificCulture("en-US"))
+            {
+                var referenceStyle = ReferenceStyleFactory.Get("Harvard"); // currently the only one implemented
+                var sortedReferences = referenceStyle.SortReferences(referenceFinder.References);
+                var contentAfter = ReplaceInTextReferences(contentBefore, sortedReferences, referenceStyle);
+                contentAfter = RenderReferenceList(referenceStyle, referenceList, sortedReferences, contentAfter);
+                return contentAfter;
+            }
+        }
 
-            // replace in-text references with a hyperlink and in-text description
+        private static string RenderReferenceList(IReferenceStyle referenceStyle, ReferenceListTag referenceList,
+            IReadOnlyList<ReferenceTag> sortedReferences, string contentAfter)
+        {
+            var renderedReferenceList = referenceStyle.RenderReferenceList(referenceList, sortedReferences);
+            contentAfter = contentAfter.Replace(referenceList.RawHtml, renderedReferenceList);
+            return contentAfter;
+        }
+
+        /// <summary>
+        ///     Replace in-text references with a hyperlink and in-text description
+        /// </summary>
+        /// <param name="contentBefore"></param>
+        /// <param name="sortedReferences"></param>
+        /// <param name="referenceStyle"></param>
+        /// <returns></returns>
+        private static string ReplaceInTextReferences(string contentBefore,
+            IReadOnlyList<ReferenceTag> sortedReferences,
+            IReferenceStyle referenceStyle)
+        {
             var contentAfter = contentBefore;
             foreach (var reference in sortedReferences)
             {
                 var renderedReference = referenceStyle.RenderReference(reference);
                 contentAfter = contentAfter.Replace(reference.RawHtml, renderedReference);
             }
-
-            // generate reference list
-            var renderedReferenceList = referenceStyle.RenderReferenceList(referenceList, sortedReferences);
-            contentAfter = contentAfter.Replace(referenceList.RawHtml, renderedReferenceList);
-
             return contentAfter;
         }
 
