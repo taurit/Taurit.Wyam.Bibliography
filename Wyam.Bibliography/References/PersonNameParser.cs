@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Text.RegularExpressions;
+using JetBrains.Annotations;
 
 namespace Wyam.Bibliography.References
 {
@@ -9,6 +10,7 @@ namespace Wyam.Bibliography.References
     {
         private static readonly Regex NameMatcher = new Regex(@"(?<firstName>\w*)\s*((?<initial>\w\.)\s*)?(?<lastName>\w*)");
 
+        [CanBeNull]
         public PersonName ParseName(string author)
         {
             if (string.IsNullOrWhiteSpace(author)) return null;

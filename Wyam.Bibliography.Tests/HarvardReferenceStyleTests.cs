@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
+using System.Threading;
 using Wyam.Bibliography.References;
 using Wyam.Bibliography.ReferenceStyles;
 using Xunit;
@@ -60,6 +62,7 @@ namespace Wyam.Bibliography.Tests
         public void ReferenceOfBook_ByASingleAuthor_NonFirstEdition_RendersCorrectly()
         {
             // Arrange
+            Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-US");
             //language=html
             var tag = new ReferenceTag(@"<reference
                 author='James Patterson'

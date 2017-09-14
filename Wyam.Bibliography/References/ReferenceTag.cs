@@ -23,6 +23,10 @@ namespace Wyam.Bibliography.References
 
             var personNameParser = new PersonNameParser();
             Author = personNameParser.ParseName(ReferenceNode.Attributes["author"]?.Value);
+            var idGenerator = new IdGenerator(new IdValidator());
+            var userProvidedId = TrimAttributeValue(ReferenceNode.Attributes["id"]?.Value);
+            Id = idGenerator.GetId(userProvidedId, Author, Year);
+
         }
 
         public string RawHtml { get; }
@@ -76,7 +80,7 @@ namespace Wyam.Bibliography.References
 
         public string Pages => TrimAttributeValue(ReferenceNode.Attributes["pages"]?.Value);
         public string Title => TrimAttributeValue(ReferenceNode.Attributes["title"]?.Value);
-        public string Id => TrimAttributeValue(ReferenceNode.Attributes["id"]?.Value);
+        public string Id { get; }
         public string Url => TrimAttributeValue(ReferenceNode.Attributes["url"]?.Value);
 
         public int? Edition
