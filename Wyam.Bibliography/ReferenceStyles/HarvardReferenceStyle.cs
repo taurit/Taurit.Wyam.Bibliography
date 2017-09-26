@@ -45,22 +45,29 @@ namespace Wyam.Bibliography.ReferenceStyles
         public string RenderReference(ReferenceTag reference)
         {
             var inTextReference = "[*]"; // fallback value
-            if (reference.Author?.LastName != null)
-                if (reference.Year != null)
-                    if (reference.Pages == null)
-                    {
-                        inTextReference = $"({reference.Author.LastName} {reference.Year.Value})";
-                    }
-                    else
-                    {
-                        // "The correct forms are p. for a single page, and pp. for a range." https://english.stackexchange.com/a/14539
-                        var pagesAbbreviation = reference.Pages.Contains("-") ? "p." : "pp.";
+            if (reference.Author != null)
+            {
+                var nameForInTextReference = reference.Author.LastName ?? reference.Author.UnprocessedAuthorString;
+                if (nameForInTextReference != null)
+                {
+                    if (reference.Year != null)
+                        if (reference.Pages == null)
+                        {
+                            inTextReference = $"({nameForInTextReference} {reference.Year.Value})";
+                        }
+                        else
+                        {
+                            // "The correct forms are p. for a single page, and pp. for a range." https://english.stackexchange.com/a/14539
+                            var pagesAbbreviation = reference.Pages.Contains("-") ? "p." : "pp.";
 
-                        inTextReference =
-                            $"({reference.Author.LastName} {reference.Year.Value}, {pagesAbbreviation} {reference.Pages})";
-                    }
-                else
-                    inTextReference = $"({reference.Author.LastName})";
+                            inTextReference =
+                                $"({nameForInTextReference} {reference.Year.Value}, {pagesAbbreviation} {reference.Pages})";
+                        }
+                    else
+                        inTextReference = $"({nameForInTextReference})";
+                }
+            }
+          
 
             var link = $"<a href='#{reference.Id}' class='resource-reference'>{inTextReference}</a>";
             return link;

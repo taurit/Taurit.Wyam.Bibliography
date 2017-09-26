@@ -6,7 +6,7 @@ namespace Wyam.Bibliography.References
 {
     internal class PersonName
     {
-        public PersonName(string userProvidedAuthor, string firstName, string lastName, IReadOnlyList<char> initials)
+        public PersonName(string userProvidedAuthor, string firstName, string lastName, [NotNull]IReadOnlyList<char> initials)
         {
             FirstName = ConvertToNullIfEmpty(firstName);
             LastName = ConvertToNullIfEmpty(lastName);

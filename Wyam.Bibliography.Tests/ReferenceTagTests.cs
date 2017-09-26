@@ -350,6 +350,19 @@ namespace Wyam.Bibliography.Tests
             Assert.True(tag1.Id == tag2.Id);
             Assert.True(tag2.Id == tag3.Id);
         }
+        
+
+        [Fact]
+        public void WhenAuthorStringHasThreeWords_ItIsNotParsedAsName()
+        {
+            // Arrange/Act
+            var tag1 = new ReferenceTag("<reference author='Zaufana Trzecia Strona' date='1968' />");
+
+            // Assert
+            Assert.Null(tag1.Author.LastName);
+            Assert.Null(tag1.Author.FirstName);
+            Assert.Equal("Zaufana Trzecia Strona", tag1.Author.UnprocessedAuthorString);
+        }
 
         [Fact]
         public void WhenAuthorsNameIsAvailable_ItIsPresentInId()

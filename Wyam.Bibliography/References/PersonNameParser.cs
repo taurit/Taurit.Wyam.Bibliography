@@ -8,7 +8,7 @@ namespace Wyam.Bibliography.References
 {
     internal class PersonNameParser
     {
-        private static readonly Regex NameMatcher = new Regex(@"(?<firstName>\w*)\s*((?<initial>\w\.)\s*)?(?<lastName>\w*)");
+        private static readonly Regex NameMatcher = new Regex(@"^(?<firstName>\w*)\s*((?<initial>\w\.)\s*)?(?<lastName>\w*)$");
 
         [CanBeNull]
         public PersonName ParseName(string author)
@@ -16,7 +16,7 @@ namespace Wyam.Bibliography.References
             if (string.IsNullOrWhiteSpace(author)) return null;
             author = author.Trim();
             var match = NameMatcher.Match(author);
-            if (!match.Success) return null;
+            if (!match.Success) return new PersonName(author, null, null, new List<char>());
 
             string firstName = match.Groups["firstName"]?.Value;
             string lastName = match.Groups["lastName"]?.Value;
