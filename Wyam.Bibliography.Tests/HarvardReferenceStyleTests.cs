@@ -98,7 +98,8 @@ namespace Wyam.Bibliography.Tests
             var rendered = sut.RenderReferenceListItemContent(tag);
 
             // Assert 
-            Assert.Equal("Mms.com, (2015). <i>M&M'S Official Website</i>. [online] Available at: http://www.mms.com/ [Accessed 20 Apr. 2015].", rendered);
+            Assert.StartsWith("Mms.com, (2015). <i>M&M'S Official Website</i>. [online] Available at: <a", rendered);
+            Assert.EndsWith(" [Accessed 20 Apr. 2015].", rendered);
         }
 
     }

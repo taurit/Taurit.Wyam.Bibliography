@@ -117,9 +117,13 @@ namespace Wyam.Bibliography.ReferenceStyles
             var monthAbbreviation = DateTimeFormatInfo.InvariantInfo.GetAbbreviatedMonthName(dateTime.Month);
             var referenceDateHumanized = $"{dateTime.Day} {monthAbbreviation}. {dateTime.Year}";
 
+            var url = $"<a href='{reference.Url}' target='_blank' rel='nofollow'>{reference.Url}</a>";
+
             return $@"{reference.Author.UnprocessedAuthorString}, ({reference.Year}). <i>{
                     reference.Title
-                }</i>. [online] Available at: {reference.Url} [Accessed {referenceDateHumanized}].";
+                }</i>. [online] Available at: {url} [Accessed {referenceDateHumanized}].";
+
+
         }
 
         [JetBrains.Annotations.Pure]
