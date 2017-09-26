@@ -25,7 +25,7 @@ namespace Wyam.Bibliography.References
             Author = personNameParser.ParseName(ReferenceNode.Attributes["author"]?.Value);
             var idGenerator = new IdGenerator(new IdValidator());
             var userProvidedId = TrimAttributeValue(ReferenceNode.Attributes["id"]?.Value);
-            Id = idGenerator.GetId(userProvidedId, Author, Year);
+            Id = idGenerator.GetId(userProvidedId, Author, Year, Title);
 
         }
 
