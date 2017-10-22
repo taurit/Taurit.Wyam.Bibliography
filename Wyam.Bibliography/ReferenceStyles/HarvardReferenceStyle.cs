@@ -85,7 +85,7 @@ namespace Wyam.Bibliography.ReferenceStyles
 
             referenceListMarkup.AppendLine(
                 $@"<{headerWrapperTag} id='reference-list' class='reference-list'>{headerText}</{headerWrapperTag}>");
-            referenceListMarkup.AppendLine($@"<ol>");
+            referenceListMarkup.AppendLine($@"<ol id='reference-list-content'>");
             foreach (var reference in sortedReferences)
             {
                 var renderedReference = RenderReferenceListItem(reference);
