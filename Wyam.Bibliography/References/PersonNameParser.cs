@@ -22,6 +22,8 @@ namespace Wyam.Bibliography.References
             string lastName = match.Groups["lastName"]?.Value;
             string initial = match.Groups["initial"]?.Value;
 
+            if (firstName == "The" || String.IsNullOrEmpty(lastName)) return new PersonName(author, null, null, new List<char>()); // eg. "The Economist"
+
             List<char> initials = new List<char>(2);
             Contract.Assert(firstName != null);
             initials.Add(firstName[0]);

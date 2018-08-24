@@ -407,6 +407,31 @@ namespace Wyam.Bibliography.Tests
         }
 
         [Fact]
+        public void WhenAuthorStringStarthsWithThe_ItIsNotParsedAsName()
+        {
+            // Arrange/Act
+            var tag1 = new ReferenceTag("<reference author='The Economist' date='2010' />");
+
+            // Assert
+            Assert.Null(tag1.Author.LastName);
+            Assert.Null(tag1.Author.FirstName);
+            Assert.Equal("The Economist", tag1.Author.UnprocessedAuthorString);
+        }
+
+        [Fact]
+        public void WhenAuthorStringOnlyContainsOneWord_ItIsNotParsedAsName()
+        {
+            // Arrange/Act
+            var tag1 = new ReferenceTag("<reference author='Johnny' date='2010' />");
+
+            // Assert
+            Assert.Null(tag1.Author.LastName);
+            Assert.Null(tag1.Author.FirstName);
+            Assert.Equal(0, tag1.Author.Initials.Count);
+            Assert.Equal("Johnny", tag1.Author.UnprocessedAuthorString);
+        }
+
+        [Fact]
         public void WhenAuthorsNameIsAvailable_ItIsPresentInId()
         {
             // Arrange/Act

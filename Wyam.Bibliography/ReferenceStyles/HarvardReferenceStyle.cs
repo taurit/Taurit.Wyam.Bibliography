@@ -139,7 +139,12 @@ namespace Wyam.Bibliography.ReferenceStyles
             var edition = RenderEdition(reference.Edition);
             var publisher = RenderPublisher(reference.Publisher, reference.Place);
 
-            return $@"{reference.Author.LastName}, {reference.Author.Initials[0]}. ({reference.Year}). <i>{
+            var author = (reference.Author.Initials.Count == 0) // author name could not have been parsed using "Name FamilyName" template
+                ? reference.Author.UnprocessedAuthorString
+                : $@"{reference.Author.LastName}, {reference.Author.Initials[0]}";
+
+
+            return $@"{author}. ({reference.Year}). <i>{
                     reference.Title
                 }</i>.{edition}{publisher}";
         }
