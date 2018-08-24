@@ -1,5 +1,7 @@
 # Wyam.Bibliography
 
+[![Build status](https://taurit.visualstudio.com/Taurit.Wyam.Bibliography/_apis/build/status/Taurit.Wyam.Bibliography-.NET%20Desktop-CI)](https://taurit.visualstudio.com/Taurit.Wyam.Bibliography/_build/latest?definitionId=3)
+
 ## About the project
 This project contains a custom module for Wyam that helps me build my blog. It's created to allow better manage bibliographic records (understood as all references to external resources that were mentioned in article).
 
