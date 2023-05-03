@@ -1,4 +1,4 @@
-# Wyam.Bibliography
+# Wyam.Bibliography (discontinued)
 
 ## About the project
 This project contains a custom module for Wyam that helps me build my blog. It's created to allow better manage bibliographic records (understood as all references to external resources that were mentioned in article).
